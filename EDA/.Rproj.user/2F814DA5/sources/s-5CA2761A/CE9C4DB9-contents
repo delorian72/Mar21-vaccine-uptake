@@ -2,6 +2,7 @@
 # Get rid of NAs
 
 tt_data <- na.omit(tt_data)
+tt_data <- sample(tt_data,100)
 
 # Remove all URLs
 

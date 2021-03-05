@@ -1,0 +1,36 @@
+l_data <- read.csv("/Users/simonblewitt/OneDrive/makutu/linkedin.log",header=FALSE)
+
+l_data <- l_data %>% 
+      filter(!V1 %like%  "Premium Member")
+rm(index_name)
+rm(index_job)
+
+l_data$rownum <- as.integer(rownames(l_data))
+
+index_name <- l_data %>%
+  filter(V2 =="profile") %>%
+  select(rownum)
+
+index_name <- index_name$rownum
+index_job <- index_name + 1
+
+#clean up names
+
+l_data[index_name,1]
+l_data[index_job,1]
+
+l_name <- gsub("-->","",as.character(l_data[index_name,1]))
+l_name <- gsub("\\’s","",as.character(l_name))
+l_name <- gsub("\\’","",as.character(l_name))
+
+
+l_job <- gsub(" account page","",as.character(l_data[index_job,1]))
+l_job <- gsub("-->",",",as.character(l_job))
+
+rm(l_final)
+l_final <- paste(l_name,",",l_job)
+
+
+write.csv(l_final,"l_final.csv")
+head(l_final)
+typeof(l_final)

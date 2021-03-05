@@ -12,6 +12,7 @@ tt_data$no_hashtags <- lengths(hashtag)
 mean(tt_data$no_hashtags)
 range(tt_data$no_hashtags)
 
+sum(tt_data$no_hashtags)
 #Process hashtags
 
 hashtag_word <- unlist(hashtag)
@@ -33,11 +34,6 @@ as.data.frame(hashtag_word) %>%
   coord_flip() +
   labs(x = "Count",
        y = "Hashtag",
-       title = "Top 25 Popular Hashtags along with Covid19")
-
-library(wordcloud)
-top_25_hashtags <- as.character(as.data.frame(top_25_freqs)[,1])
-wordcloud(top_25_hashtags, top_25freqs, 
-          scale=c(3.5,1.5), random.order=FALSE, rot.per=.25)
+       title = "Top 25 Popular Hashtags along without Covid19")
 
 

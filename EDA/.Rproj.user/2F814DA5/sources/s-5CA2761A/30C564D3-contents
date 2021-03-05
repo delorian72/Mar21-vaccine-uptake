@@ -1,0 +1,20 @@
+###########################################################################################
+# First Page Visualisations
+###########################################################################################
+
+O_Data_wf_out
+
+# KEY STATS
+
+DS_Total_Reviews <- max(O_Data_wf_out$revNo)
+DS_First_Review  <- min(O_Data_wf_out$publishedDate)
+DS_Last_Review   <- max(O_Data_wf_out$publishedDate)
+DS_Low_Rating    <- min(O_Data_wf_out$rating)
+DS_High_Rating   <- max(O_Data_wf_out$rating)
+DS_Avg_Rating    <- mean(reviewData$rating)
+DS_1Star_Rating  <- reviewData %>% filter(rating == 1) %>% nrow()
+DS_2Star_Rating  <- reviewData %>% filter(rating == 2) %>% nrow()
+DS_3Star_Rating  <- reviewData %>% filter(rating == 3) %>% nrow()
+DS_4Star_Rating  <- reviewData %>% filter(rating == 4) %>% nrow()
+DS_5Star_Rating  <- reviewData %>% filter(rating == 5) %>% nrow()
+

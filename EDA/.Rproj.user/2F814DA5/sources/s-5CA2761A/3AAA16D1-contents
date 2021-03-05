@@ -1,6 +1,108 @@
-# Basic NLP Sentiment
+# Get Data
 
+library(ggplot2)
 library(dplyr)
-text_df <- tibble(line = 1:4, text = text)
+library(stringr)
+library(tidytext)
+library(tidyr)
 
-text_df
+
+sa_data <- tibble(tweet_text=tt_data$clean,
+                    created_at=tt_data$created_at,
+                  tweet_original= tt_data$full_text,
+                  tweet_id= tt_data$tweet_id,
+                  no_hashtags = tt_data$no_hashtags)
+
+sa_data <- sa_data %>%
+  unnest_tokens(word, tweet_text)
+
+unique(get_sentiments("nrc")[,2])
+nrc_sentiment <- get_sentiments("nrc")
+
+sa_data_Sent <- sa_data %>%
+  inner_join(nrc_sentiment)
+
+sa_data_Sent_Grouped <- sa_data_Sent %>%
+  group_by(tweet_id,sentiment) %>%
+  summarise(sent_total = n())
+
+sa_data_Spread <- sa_data_Sent_Grouped %>%
+  spread(sentiment,sent_total)
+
+sa_data_Spread[is.na(sa_data_Spread)] <- 0
+
+sa_data_Out <- tt_data %>%
+  left_join(sa_data_Spread)
+
+sa_data_Out
+
+
+###########################################################################################
+# Start plotting the results
+###########################################################################################
+
+# install.packages("viridis")
+# install.packages("hrbrthemes")
+library(viridis)
+library(hrbrthemes)
+library(tidyr)
+
+
+GP <- sa_data_Out %>%
+  str_detect("#pfizer") %>%
+#  group_by(created_at) %>%
+  summarise(positive = sum(positive),
+            negative = -sum(negative),
+            neutral_total = sum(positive)+sum(negative),
+            anger = sum(anger),
+            anticipation = sum(anticipation),
+            disgust = sum(disgust),
+            joy = sum(joy),
+            sadness = sum(sadness),
+            surprise = sum(surprise),
+            trust = sum(trust)) %>%
+  gather("sentiment","sent_total",2:11) %>%
+  #filter(sentiment == "positive" | sentiment == "negative" ) %>%
+  filter(sentiment == "positive" | sentiment == "negative" | sentiment == "neutral_total")
+  #filter(lubridate::year(created_at)==2019 )
+
+GB <- GP %>%
+  filter(sentiment!="neutral_total")
+
+GL <- GP %>%
+  filter(sentiment=="neutral_total")
+
+min(GP$publishedDate)
+max(GP$publishedDate)
+
+ggplot(data=GB, aes(x = publishedDate, y = sent_total, fill = sentiment)) +
+  geom_col() + guides(fill = FALSE) +
+  geom_line(data = GL, aes(x = publishedDate, y = sent_total)) +
+  scale_color_manual(name="Groups",values=c("red", "blue"))+
+  labs(x = NULL, y = "Sentiment Positive to Negative",
+       title = "Sentiment Analysis for Trust Pilot Reviews",
+       subtitle = "Analysing Positive and Negative Sentiments",
+       caption = "Overall Sentiment in Blue")
+
+
+###########################################################################################
+# Start plotting the results
+###########################################################################################
+
+GP <- O_Data_wf_out %>%
+  group_by(publishedDate) %>%
+  summarise(positive = sum(positive),
+            negative = -sum(negative),
+            neutral_total = sum(positive)+sum(negative),
+            anger = sum(anger),
+            anticipation = sum(anticipation),
+            disgust = sum(disgust),
+            joy = sum(joy),
+            sadness = sum(sadness),
+            surprise = sum(surprise),
+            trust = sum(trust)) %>%
+  gather("sentiment","sent_total",2:11) %>%
+  filter(lubridate::year(publishedDate)==2018)
+
+GB <- GP %>%
+  filter(sentiment!="neutral_total" & sentiment!="positive" & sentiment!="negative" )

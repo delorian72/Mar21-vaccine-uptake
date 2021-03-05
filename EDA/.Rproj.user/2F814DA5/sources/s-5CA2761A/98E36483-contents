@@ -1,0 +1,145 @@
+# Get Data
+reviewData <- data.frame(trustpilot("www.frankieandbennys.co.uk"))
+#reviewData <- trustpilot("ebay.co.uk")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(tidytext)
+library(tidyr)
+
+reviewData$revNo <- 1:nrow(reviewData)
+
+O_Data_wf <- tibble(revNo=reviewData$revNo,
+                    publishedDate=reviewData$publishedDate,
+                    name=reviewData$name,
+                    title=reviewData$title,
+                    content=reviewData$content,
+                    rating=reviewData$rating)
+
+O_Data_wf <- O_Data_wf %>%
+  unnest_tokens(word, content)
+
+unique(get_sentiments("nrc")[,2])
+nrc_sentiment <- get_sentiments("nrc")
+
+O_Data_wf_sent <- O_Data_wf %>%
+  inner_join(nrc_sentiment)
+
+O_Data_wf_sent_grouped <- O_Data_wf_sent %>%
+  group_by(revNo,sentiment,publishedDate) %>%
+  summarise(sent_total = n())
+
+O_Data_wf_spread <- O_Data_wf_sent_grouped %>%
+  spread(sentiment,sent_total)
+
+O_Data_wf_spread[is.na(O_Data_wf_spread)] <- 0
+
+O_Data_wf_out <- reviewData %>%
+  left_join(O_Data_wf_spread)
+
+O_Data_wf_out
+
+
+###########################################################################################
+# Start plotting the results
+###########################################################################################
+
+# install.packages("viridis")
+# install.packages("hrbrthemes")
+library(viridis)
+library(hrbrthemes)
+
+
+GP <- O_Data_wf_out %>%
+  group_by(publishedDate) %>%
+  summarise(positive = sum(positive),
+            negative = -sum(negative),
+            neutral_total = sum(positive)+sum(negative),
+            anger = sum(anger),
+            anticipation = sum(anticipation),
+            disgust = sum(disgust),
+            joy = sum(joy),
+            sadness = sum(sadness),
+            surprise = sum(surprise),
+            trust = sum(trust)) %>%
+  gather("sentiment","sent_total",2:11) %>%
+  #filter(sentiment == "positive" | sentiment == "negative" ) %>%
+  filter(sentiment == "positive" | sentiment == "negative" | sentiment == "neutral_total") %>%
+  filter(lubridate::year(publishedDate)==2019 )
+
+GB <- GP %>%
+  filter(sentiment!="neutral_total")
+
+GL <- GP %>%
+  filter(sentiment=="neutral_total")
+
+min(GP$publishedDate)
+max(GP$publishedDate)
+
+ggplot(data=GB, aes(x = publishedDate, y = sent_total, fill = sentiment)) +
+  geom_col() + guides(fill = FALSE) +
+  geom_line(data = GL, aes(x = publishedDate, y = sent_total)) +
+  scale_color_manual(name="Groups",values=c("red", "blue"))+
+  labs(x = NULL, y = "Sentiment Positive to Negative",
+       title = "Sentiment Analysis for Trust Pilot Reviews",
+       subtitle = "Analysing Positive and Negative Sentiments",
+       caption = "Overall Sentiment in Blue")
+
+
+###########################################################################################
+# Start plotting the results
+###########################################################################################
+
+GP <- O_Data_wf_out %>%
+  group_by(publishedDate) %>%
+  summarise(positive = sum(positive),
+            negative = -sum(negative),
+            neutral_total = sum(positive)+sum(negative),
+            anger = sum(anger),
+            anticipation = sum(anticipation),
+            disgust = sum(disgust),
+            joy = sum(joy),
+            sadness = sum(sadness),
+            surprise = sum(surprise),
+            trust = sum(trust)) %>%
+  gather("sentiment","sent_total",2:11) %>%
+  filter(lubridate::year(publishedDate)==2018)
+
+GB <- GP %>%
+  filter(sentiment!="neutral_total" & sentiment!="positive" & sentiment!="negative" )
+
+GL <- GP %>%
+  filter(sentiment=="joy")
+
+min(GP$publishedDate)
+max(GP$publishedDate)
+
+## yearly line chart
+ggplot(GB, aes(x=lubridate::week(publishedDate), y=sent_total, color=sentiment, group=sentiment)) +
+  geom_point(size=1) +
+  geom_point(size=0.5) +
+  xlab("Month") +
+  ylab("Emotion words count (%)") +
+  ggtitle("Emotion word analysis in Trustpilot Reviews")
+
+
+# Analyse sentiment for vs the rating.
+
+O_Data_wf_out %>%
+  group_by(rating) %>%
+  summarise(positive = mean(positive),
+            negative = -mean(negative),
+            neutral_total = mean(positive)+sum(negative),
+            anger = mean(anger),
+            anticipation = mean(anticipation),
+            disgust = mean(disgust),
+            joy = mean(joy),
+            sadness = mean(sadness),
+            surprise = mean(surprise),
+            trust = mean(trust)) %>%
+  gather("sentiment","sent_total",2:11) %>%
+)  
+  
+  
+
