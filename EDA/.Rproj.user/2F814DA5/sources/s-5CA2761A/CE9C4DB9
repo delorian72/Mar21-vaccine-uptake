@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1614967947273.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CE9C4DB9",
+    "lastKnownWriteTime" : 1614969537,
+    "last_content_update" : 1614969537373,
+    "path" : "~/Documents/GitHub/Mar21-vaccine-uptake/EDA/url removal.R",
+    "project_path" : "url removal.R",
+    "properties" : {
+        "cursorPosition" : "23,0",
+        "scrollLine" : "6"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

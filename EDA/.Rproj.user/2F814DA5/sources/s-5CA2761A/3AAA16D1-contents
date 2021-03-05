@@ -1,0 +1,6 @@
+# Basic NLP Sentiment
+
+library(dplyr)
+text_df <- tibble(line = 1:4, text = text)
+
+text_df
